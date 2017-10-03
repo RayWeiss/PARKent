@@ -6,27 +6,17 @@ import { StatusBar } from '@ionic-native/status-bar';
 
 import { MyApp } from './app.component';
 
-import { MapPage } from '../pages/map/map';
-import { ListPage } from '../pages/list/list';
-import { TabsPage } from '../pages/tabs/tabs';
-
 @NgModule({
   declarations: [
     MyApp,
-    MapPage,
-    ListPage,
-    TabsPage
   ],
   imports: [
     BrowserModule,
     IonicModule.forRoot(MyApp)
   ],
   bootstrap: [IonicApp],
-  entryComponents: [
-    MyApp,
-    MapPage,
-    ListPage,
-    TabsPage
+  exports: [
+    MyApp
   ],
   providers: [
     StatusBar,
@@ -34,4 +24,6 @@ import { TabsPage } from '../pages/tabs/tabs';
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
-export class AppModule {}
+export class AppModule {
+  TabsPage:any='TabsPage';
+}
