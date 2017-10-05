@@ -18,6 +18,5 @@ export class TabsPage {
   tab2Root = 'ListPage';
 
   constructor() {
-
   }
 }
