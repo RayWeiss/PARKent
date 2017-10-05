@@ -13,7 +13,7 @@ export class ListPage {
     this.items = [];
     for(let i = 0; i < 10; ++i) {
       this.items.push({
-        text: 'Item ' + i,
+        text: 'Lot ' + i,
         id: i
       });
     }
