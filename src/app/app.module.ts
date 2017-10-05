@@ -24,6 +24,4 @@ import { MyApp } from './app.component';
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
-export class AppModule {
-  TabsPage:any='TabsPage';
-}
+export class AppModule {}
