@@ -1,15 +1,41 @@
 #!/usr/local/bin/python3
 from flask import Flask
 from flask_cors import CORS
+import MySQLdb
+import collections
+import json
+
 app = Flask(__name__)
 CORS(app)
 
+def query(queryString):
+    try:
+        db = MySQLdb.connect(host="localhost",
+                             user="develop",
+                             passwd="password",
+                             db="parking_data")
 
+        cur = db.cursor()
+        cur.execute(queryString)
+        results = cur.fetchall()
+        resultsArray = []
+        rowCount = 0
+        for result in results:
+            itemCount = 0
+            dic = collections.OrderedDict()
+            for item in result:
+                dic[itemCount] = str(item)
+                itemCount += 1
+            resultsArray.append(dic)
+            rowCount += 1
+        return json.dumps(resultsArray)
+        # db.commit();
+    except MySQLdb.Error as e:
+        print("mySQL Query Error: ", e)
 
 @app.route("/allLots")
 def getAllLotNames():
-    # query DB for all lot names
-    return "lot 1, lot 2 lot 3"
+    return query("select * from lots")
 
 @app.route("/spotsleft/<parkingLotName>")
 def getAvailableSpotsFor(parkingLotName):
