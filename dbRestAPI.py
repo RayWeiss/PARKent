@@ -31,16 +31,24 @@ def query(queryString):
         return json.dumps(resultsArray)
         # db.commit();
     except MySQLdb.Error as e:
+        errorArray = []
+        errorDic = collections.OrderedDict()
+        errorDic["errors"] = str(e)
+        errorArray.append(errorDic)
         print("mySQL Query Error: ", e)
+        return json.dumps(errorArray)
 
 @app.route("/allLots")
-def getAllLotNames():
-    return query("select * from lots")
+def getAllLotInfo():
+    return query("SELECT * FROM lots")
 
 @app.route("/spotsleft/<parkingLotName>")
 def getAvailableSpotsFor(parkingLotName):
-    # query DB for parkingLotName spots left
-    return parkingLotName + " 100"
+    return query("SELECT freeSpots FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1")
+
+@app.route("/percentleft/<parkingLotName>")
+def getPercentLeftFor(parkingLotName):
+    return query("SELECT((SELECT freeSpots FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1) / (SELECT totalSpots FROM lots WHERE name = \"" + parkingLotName + "\")) as percentLeft")
 
 @app.route("/prediction/<parkingLotName>")
 def getPredictionFor(parkingLotName):
