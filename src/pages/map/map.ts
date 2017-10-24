@@ -18,6 +18,10 @@ export class MapPage {
   markers = {};
   spots: any;
 
+  green = "00CC00";
+  yellow = "FFFF00";
+  red = "FF0000";
+
   constructor(public navCtrl: NavController, public navParams: NavParams, public dbService: DbRestServiceProvider) {
     this.db = dbService;
   }
@@ -60,10 +64,31 @@ export class MapPage {
           position: {lat: lat, lng: lon},
           map: this.map
         });
-
+        marker.setIcon(this.getPinWithHexColor(this.red));
+        // marker.setIcon(this.getCircleWithHexColor(this.green));
         this.markers[name] = marker;
       }
     });
   }
 
+  getPinWithHexColor(color) {
+    return new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + color,
+      new google.maps.Size(21, 34),
+      new google.maps.Point(0,0),
+      new google.maps.Point(10, 34));
+  }
+
+  getCircleWithHexColor(color) {
+    return {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 10.0,
+        fillColor: "#" + color,
+        fillOpacity: 1.0,
+        strokeWeight: 0.0
+    }
+  }
+
+  changeLotMarkerToColor(lotName, color) {
+    // this.markers[lotName].setIcon(this.getPinWithHexColor(color));
+  }
 }
