@@ -12,7 +12,7 @@ CORS(app)
 #DATABASE CREDENTIALS
 host="localhost"
 user="root"
-passwd="root"
+passwd="Password"
 
 def query(queryString):
     try:
@@ -88,7 +88,7 @@ def addCenter(dbName, lat, lon):
 
                 cur = db.cursor()
                 useQuery = "use " + dbName + ";"
-                insertQuery = "insert into center (lat, lon) values(" + lat + "," + lon + ");"
+                insertQuery = "call insertCenter(" + lat + "," + lon + ");"
                 print (useQuery)
                 cur.execute(useQuery)
                 cur.execute(insertQuery)
