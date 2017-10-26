@@ -35,7 +35,8 @@ export class MapPage {
     console.log('ionViewDidLoad MapPage');
     this.initMap();
     this.initializeMarkers();
-    this.continuallyUpdateMarkers();
+    // this.continuallyUpdateMarkers();
+    this.updateAllMarkers();
   }
 
   initMap() {
@@ -95,6 +96,41 @@ export class MapPage {
     }
   }
 
+  getColorForPercent(percent) {
+    var color;
+    if(percent > 0.25) {
+      color = this.green;
+    } else if (percent > 0.10) {
+      color = this.yellow;
+    } else if (percent > 0.0) {
+      color = this.red;
+    } else {
+      color = this.black;
+    }
+    return color;
+  }
+
+  updateAllMarkers() {
+    const seconds = 1;
+    const interval = Observable.interval(seconds * 1000);
+    const forever = interval.filter(val => false);
+
+    interval.takeUntil(forever).subscribe(val => {
+        this.db.getAllStatus()
+          .then(results => {
+            for (var result in results) {
+              let lots = results[result];
+              for(var lot in lots){
+                var lotName = lot;
+                var percentFilled = lots[lot];
+                this.markers.get(lotName).setIcon(this.getPinWithHexColor(this.getColorForPercent(percentFilled)));
+              }
+            }
+        });
+    });
+  }
+  
+  // doesn't work
   continuallyUpdateMarkers() {
     const seconds = 5;
     const interval = Observable.interval(seconds * 1000);

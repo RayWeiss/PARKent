@@ -29,7 +29,7 @@ def query(queryString):
             resultsArray.append(dic)
             rowCount += 1
         return json.dumps(resultsArray)
-        # db.commit();
+
     except MySQLdb.Error as e:
         errorArray = []
         errorDic = collections.OrderedDict()
@@ -37,6 +37,40 @@ def query(queryString):
         errorArray.append(errorDic)
         print("mySQL Query Error: ", e)
         return json.dumps(errorArray)
+
+def queryArray(queryString):
+    try:
+        db = MySQLdb.connect(host="localhost",
+                             user="develop",
+                             passwd="password",
+                             db="parking_data")
+
+        cur = db.cursor()
+        cur.execute(queryString)
+        arr = []
+        for row in cur:
+            arr.append("".join(row))
+        return arr
+    except MySQLdb.Error as e:
+        errorArray = []
+        errorDic = collections.OrderedDict()
+        errorDic["errors"] = str(e)
+        errorArray.append(str(e))
+        print("mySQL Query Error: ", e)
+        return errorArray
+
+def getPercent(parkingLotName):
+    db = MySQLdb.connect(host="localhost",
+                         user="develop",
+                         passwd="password",
+                         db="parking_data")
+
+    cur = db.cursor()
+    cur.execute("SELECT((SELECT freeSpots FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1) / (SELECT totalSpots FROM lots WHERE name = \"" + parkingLotName + "\")) as percentLeft")
+    results = cur.fetchall()
+    for result in results:
+        for item in result:
+            return str(item)
 
 @app.route("/allLots")
 def getAllLotInfo():
@@ -55,6 +89,17 @@ def getPredictionFor(parkingLotName):
     # query DB for parkingLotName prediction
     return parkingLotName + " .0 .03 .07 .20 .25 .4 .5 .9 1.0 1.0 1.0 .8 .9 1.0"
 
+@app.route("/allStatus")
+def getAllStatus():
+    lotsArr = queryArray("SELECT name FROM lots")
+    dic = collections.OrderedDict()
+
+    for lot in lotsArr:
+        dic[lot] = str(getPercent(lot))
+    result = []
+    result.append(dic)
+
+    return json.dumps(result)
 
 if __name__ == "__main__":
     app.run()
