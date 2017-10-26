@@ -129,7 +129,6 @@ def dropLot(dbName, lotName):
                 cur.execute(removeFromLots)
                 cur.execute(dropDataQuery)
                 cur.execute(dropPredictionQuery)
-                #cur.execute(removeFromLots)
                 successJson = "{\"0\":\"true\"}"
                 return successJson
 
@@ -144,8 +143,9 @@ def returnError(e):
                 print("mySQL Query Error: ", e)
                 return json.dumps(errorArray)
 
+#still need to add edit values functions
 
-
+#need to change so it takes in dbName too
 @app.route("/addlot/<lotName>/<totalSpots>/<lat>/<lon>/<url>")
 def addNewLot(lotName, totalSpots, lat, lon, url):
         return addLot(lotName, totalSpots, lat, lon, url)
@@ -154,6 +154,7 @@ def addNewLot(lotName, totalSpots, lat, lon, url):
 def removeLot(dbName, lotName):
 	return dropLot(dbName, lotName)
 
+#needs procedure for adding center
 @app.route("/createdb/<dbName>/<lat>/<lon>")
 def createDatabase(dbName, lat, lon):
 	createDB(dbName)
