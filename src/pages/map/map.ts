@@ -4,9 +4,6 @@ import { DbRestServiceProvider } from '../../providers/db-rest-service/db-rest-s
 import {} from '@types/googlemaps';
 import { Observable } from 'rxjs/Rx';
 
-
-
-
 declare var google;
 
 @IonicPage()
@@ -15,6 +12,7 @@ declare var google;
   templateUrl: 'map.html',
   providers: [DbRestServiceProvider]
 })
+
 export class MapPage {
 
   @ViewChild('map') mapElement: ElementRef;
@@ -35,7 +33,6 @@ export class MapPage {
     console.log('ionViewDidLoad MapPage');
     this.initMap();
     this.initializeMarkers();
-    // this.continuallyUpdateMarkers();
     this.updateAllMarkers();
   }
 
@@ -127,61 +124,6 @@ export class MapPage {
               }
             }
         });
-    });
-  }
-  
-  // doesn't work
-  continuallyUpdateMarkers() {
-    const seconds = 5;
-    const interval = Observable.interval(seconds * 1000);
-    const forever = interval.filter(val => false);
-
-    interval.takeUntil(forever).subscribe(val => {
-      var allSpots = [];
-      var allStatus = [];
-      this.db.getSpots()
-      .then(spots => {
-        for (var key in spots) {
-          var spot = spots[key]
-          var name = spot[0];
-          allSpots.push(name);
-        }
-      }).then(spots => {
-        for(var spot in allSpots){
-          var name = allSpots[spot];
-
-          this.db.getStatus(name)
-          .then(status => {
-            for (var key in status) {
-              var currentStatus = status[key]
-              var percentLeft = Number(currentStatus[0]);
-              allStatus.push(percentLeft);
-            }
-            if(allStatus.length == allSpots.length){
-              for(var i = 0; i < allSpots.length; ++i) {
-                var nameToUpdate = allSpots[i];
-                var percentToUpdateWith = allStatus[i];
-
-                var color;
-
-                if(percentToUpdateWith > 0.25) {
-                  color = this.green;
-                } else if (percentToUpdateWith > 0.10) {
-                  color = this.yellow;
-                } else if (percentToUpdateWith > 0.0) {
-                  color = this.red;
-                } else {
-                  color = this.black;
-                }
-
-                this.markers.get(nameToUpdate).setIcon(this.getPinWithHexColor(color));
-              }
-              allSpots = [];
-              allStatus = [];
-            }
-          });
-        }
-      });
     });
   }
 }
