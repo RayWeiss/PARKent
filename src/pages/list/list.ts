@@ -15,7 +15,7 @@ export class ListPage {
   constructor(public navCtrl: NavController, public navParams: NavParams, public dbService: DbRestServiceProvider) {
     this.db = dbService;
     this.items = [];
-    this.getLotNames();
+    this.getFracLeft();
   }
 
   ionViewDidLoad() {
@@ -28,17 +28,22 @@ export class ListPage {
     });
   }
 
-  getLotNames() {
-    this.db.getSpots()
-    .then(spots => {
-      for (var key in spots) {
-        var spot = spots[key]
-        var lotName = spot[0];
-        var totalSpots = spot[1];
-        this.items.push({
-          lotName: lotName,
-          totalSpots: totalSpots
-        });
+  getFracLeft() {
+    this.db.getFracLeft()
+    .then(response => {
+      for (var val in response) {
+        var spots = response[val];
+        for (var spot in spots) {
+          var lotName = spot;
+          var fracValues = spots[spot];
+          var spotsLeft = fracValues[0];
+          var totalSpots = fracValues[1];
+          this.items.push({
+            lotName: lotName,
+            spotsLeft: spotsLeft,
+            totalSpots: totalSpots
+          });
+        }
       }
     });
   }

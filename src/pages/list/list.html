@@ -7,7 +7,12 @@
 <ion-content>
   <ion-list>
     <button ion-item *ngFor="let item of items" (click)="itemSelected(item)">
-      {{ item.lotName }}
+      <span class = lot-name>
+        {{ item.lotName }}
+      </span>
+      <span class = frac-left>
+        {{ item.spotsLeft }} / {{ item.totalSpots }} spots left
+      </span>
     </button>
   </ion-list>
 </ion-content>

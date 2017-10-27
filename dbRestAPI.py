@@ -72,6 +72,32 @@ def getPercent(parkingLotName):
         for item in result:
             return str(item)
 
+def getSpotsLeft(parkingLotName):
+    db = MySQLdb.connect(host="localhost",
+                         user="develop",
+                         passwd="password",
+                         db="parking_data")
+
+    cur = db.cursor()
+    cur.execute("SELECT freeSpots FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1")
+    results = cur.fetchall()
+    for result in results:
+        for item in result:
+            return str(item)
+
+def getTotalSpots(parkingLotName):
+    db = MySQLdb.connect(host="localhost",
+                         user="develop",
+                         passwd="password",
+                         db="parking_data")
+
+    cur = db.cursor()
+    cur.execute("SELECT totalSpots FROM lots WHERE name = \"" + parkingLotName + "\"")
+    results = cur.fetchall()
+    for result in results:
+        for item in result:
+            return str(item)
+
 @app.route("/allLots")
 def getAllLotInfo():
     return query("SELECT * FROM lots")
@@ -96,6 +122,21 @@ def getAllStatus():
 
     for lot in lotsArr:
         dic[lot] = str(getPercent(lot))
+    result = []
+    result.append(dic)
+
+    return json.dumps(result)
+
+@app.route("/fracLeft")
+def getFracLeft():
+    lotsArr = queryArray("SELECT name FROM lots")
+    dic = collections.OrderedDict()
+
+    for lot in lotsArr:
+        fracArr = []
+        fracArr.append(str(getSpotsLeft(lot)))
+        fracArr.append(str(getTotalSpots(lot)))
+        dic[lot] = fracArr
     result = []
     result.append(dic)
 
