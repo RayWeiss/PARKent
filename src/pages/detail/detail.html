@@ -1,18 +1,42 @@
-<!--
-  Generated template for the DetailPage page.
-
-  See http://ionicframework.com/docs/components/#navigation for more info on
-  Ionic pages and navigation.
--->
 <ion-header>
-
   <ion-navbar>
-    <ion-title>{{item.lotName}}</ion-title>
+    <ion-title *ngFor="let title of lot">{{title}}</ion-title>
   </ion-navbar>
-
 </ion-header>
 
-
-<ion-content padding>
-  <h2>{{item.totalSpots}}</h2>
+<ion-content>
+  <div class='container'>
+    <div>
+      <ion-slides loop='false' pager='true' class='chartContainer'>
+        <ion-slide>
+          <h5>Monday</h5>
+          <canvas #mondayChart></canvas>
+        </ion-slide>
+        <ion-slide>
+          <h5>Tuesday</h5>
+          <canvas #tuesdayChart></canvas>
+        </ion-slide>
+        <ion-slide>
+          <h5>Wednesday</h5>
+          <canvas #wednesdayChart></canvas>
+        </ion-slide>
+        <ion-slide>
+          <h5>Thursday</h5>
+          <canvas #thursdayChart></canvas>
+        </ion-slide>
+        <ion-slide>
+          <h5>Friday</h5>
+          <canvas #fridayChart></canvas>
+        </ion-slide>
+        <ion-slide>
+          <h5>Saturday</h5>
+          <canvas #saturdayChart></canvas>
+        </ion-slide>
+        <ion-slide>
+          <h5>Sunday</h5>
+          <canvas #sundayChart></canvas>
+        </ion-slide>
+      </ion-slides>
+    </div>
+  </div>
 </ion-content>
