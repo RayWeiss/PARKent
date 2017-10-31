@@ -10,13 +10,21 @@ export class DbRestServiceProvider {
   getAllStatusResponse: any;
   getFracLeftResponse: any;
 
+  // local
+  host = 'http://127.0.0.1';
+  port = ':5000';
+
+  // // remote
+  // host = 'http://131.123.35.143';
+  // port = '5000';
+
   constructor(public http: Http) {
     console.log('Hello DbRestServiceProvider Provider');
   }
 
   getSpots() {
       return new Promise(resolve => {
-        this.http.get('http://127.0.0.1:5000/allLots')
+        this.http.get(this.host + this.port + '/allLots')
           .map(res => res.json())
           .subscribe(data => {
             this.getSpotsResponse = data;
@@ -27,7 +35,7 @@ export class DbRestServiceProvider {
 
     getAllStatus() {
         return new Promise(resolve => {
-          this.http.get('http://127.0.0.1:5000/allStatus')
+          this.http.get(this.host + this.port + '/allStatus')
             .map(res => res.json())
             .subscribe(data => {
               this.getAllStatusResponse = data;
@@ -38,7 +46,7 @@ export class DbRestServiceProvider {
 
     getFracLeft() {
         return new Promise(resolve => {
-          this.http.get('http://127.0.0.1:5000/fracLeft')
+          this.http.get(this.host + this.port + '/fracLeft')
             .map(res => res.json())
             .subscribe(data => {
               this.getFracLeftResponse = data;
