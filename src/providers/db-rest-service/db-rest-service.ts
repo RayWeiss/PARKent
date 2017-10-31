@@ -8,6 +8,7 @@ export class DbRestServiceProvider {
   data: any;
   getSpotsResponse: any;
   getAllStatusResponse: any;
+  getFracLeftResponse: any;
 
   constructor(public http: Http) {
     console.log('Hello DbRestServiceProvider Provider');
@@ -40,8 +41,8 @@ export class DbRestServiceProvider {
           this.http.get('http://127.0.0.1:5000/fracLeft')
             .map(res => res.json())
             .subscribe(data => {
-              this.getAllStatusResponse = data;
-              resolve(this.getAllStatusResponse);
+              this.getFracLeftResponse = data;
+              resolve(this.getFracLeftResponse);
             });
         });
     }
