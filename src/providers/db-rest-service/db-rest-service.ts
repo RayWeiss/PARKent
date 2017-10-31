@@ -35,6 +35,16 @@ export class DbRestServiceProvider {
         });
     }
 
+    getFracLeft() {
+        return new Promise(resolve => {
+          this.http.get('http://127.0.0.1:5000/fracLeft')
+            .map(res => res.json())
+            .subscribe(data => {
+              this.getAllStatusResponse = data;
+              resolve(this.getAllStatusResponse);
+            });
+        });
+    }
     // templateCall1() {
     //   // if (this.getSpotsResponse) {
     //   //     // already loaded data
