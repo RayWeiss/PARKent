@@ -47,10 +47,11 @@ def addLot(lotName, totalSpots, lat, lon, url):
                              passwd,
                              db="parking_data")
 
-
+                useQuery = "use parking_data;"
                 query = "Call add_lot (\"" + lotName + "\"," + totalSpots + "," + lat + "," + lon + ",\"" + url + "\");"
                 cur = db.cursor()
                 cur.execute(query)
+                cur.execute(useQuery)
                 successJson = "{\"0\":\"true\"}"
                 return successJson
 
@@ -66,7 +67,7 @@ def createDB(dbName):
                              passwd)
 
                 dbQuery = "create database " + dbName + ";"
-                useQuery = "use " + dbName + ";"
+                useQuery = "use parking_data;"
                 centerQuery = "create table center (lat double(10,8), lon double(10,8));"
 
                 cur = db.cursor()
@@ -113,13 +114,13 @@ def removeDB(dbName):
         except MySQLdb.Error as e:
             return returnError(e)
 
-def dropLot(dbName, lotName):
+def dropLot( lotName):
         try:
                 db = MySQLdb.connect(host,
                              user,
                              passwd) 
                 cur = db.cursor()
-                useQuery = "use " + dbName + ";"
+                useQuery = "use parking_data;"
                 dropDataQuery = "drop table " + lotName + "Data;"
                 dropPredictionQuery = "drop table " + lotName + "Prediction;"
                 removeFromLots = "Call remove_from_lots (\"" + lotName + "\");"
@@ -143,16 +144,17 @@ def returnError(e):
                 print("mySQL Query Error: ", e)
                 return json.dumps(errorArray)
 
-#still need to add edit values functions
 
-#need to change so it takes in dbName too
+
+
 @app.route("/addlot/<lotName>/<totalSpots>/<lat>/<lon>/<url>")
 def addNewLot(lotName, totalSpots, lat, lon, url):
         return addLot(lotName, totalSpots, lat, lon, url)
 
-@app.route("/removelot/<dbName>/<lotName>")
-def removeLot(dbName, lotName):
-	return dropLot(dbName, lotName)
+#@app.route("/removelot/<dbName>/<lotName>")
+@app.route("/removelot/<lotName>")
+def removeLot(lotName):
+	return dropLot(lotName)
 
 #needs procedure for adding center
 @app.route("/createdb/<dbName>/<lat>/<lon>")
