@@ -142,5 +142,9 @@ def getFracLeft():
 
     return json.dumps(result)
 
+@app.route("/predictions/<parkingLotName>")
+def getPredictionsFor(parkingLotName):
+    return query("SELECT percentFilled FROM " + parkingLotName + "Prediction")
+
 if __name__ == "__main__":
     app.run()

@@ -9,6 +9,7 @@ export class DbRestServiceProvider {
   getSpotsResponse: any;
   getAllStatusResponse: any;
   getFracLeftResponse: any;
+  getPredictionsResponse: any;
 
   // local
   host = 'http://127.0.0.1';
@@ -54,6 +55,17 @@ export class DbRestServiceProvider {
             });
         });
     }
+
+    getPredictionsFor(parkingLotName) {
+        return new Promise(resolve => {
+          this.http.get(this.host + this.port + '/predictions/' + parkingLotName)
+            .map(res => res.json())
+            .subscribe(data => {
+              this.getPredictionsResponse = data;
+              resolve(this.getPredictionsResponse);
+            });
+        });
+      }
     // templateCall1() {
     //   // if (this.getSpotsResponse) {
     //   //     // already loaded data
