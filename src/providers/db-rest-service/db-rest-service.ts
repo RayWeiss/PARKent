@@ -8,6 +8,16 @@ export class DbRestServiceProvider {
   data: any;
   getSpotsResponse: any;
   getAllStatusResponse: any;
+  getFracLeftResponse: any;
+  getPredictionsResponse: any;
+
+  // local
+  host = 'http://127.0.0.1';
+  port = ':5000';
+
+  // // remote
+  // host = 'http://131.123.35.143';
+  // port = ':5000';
 
   constructor(public http: Http) {
     console.log('Hello DbRestServiceProvider Provider');
@@ -15,7 +25,7 @@ export class DbRestServiceProvider {
 
   getSpots() {
       return new Promise(resolve => {
-        this.http.get('http://127.0.0.1:5000/allLots')
+        this.http.get(this.host + this.port + '/allLots')
           .map(res => res.json())
           .subscribe(data => {
             this.getSpotsResponse = data;
@@ -26,7 +36,7 @@ export class DbRestServiceProvider {
 
     getAllStatus() {
         return new Promise(resolve => {
-          this.http.get('http://127.0.0.1:5000/allStatus')
+          this.http.get(this.host + this.port + '/allStatus')
             .map(res => res.json())
             .subscribe(data => {
               this.getAllStatusResponse = data;
@@ -37,14 +47,25 @@ export class DbRestServiceProvider {
 
     getFracLeft() {
         return new Promise(resolve => {
-          this.http.get('http://127.0.0.1:5000/fracLeft')
+          this.http.get(this.host + this.port + '/fracLeft')
             .map(res => res.json())
             .subscribe(data => {
-              this.getAllStatusResponse = data;
-              resolve(this.getAllStatusResponse);
+              this.getFracLeftResponse = data;
+              resolve(this.getFracLeftResponse);
             });
         });
     }
+
+    getPredictionsFor(parkingLotName) {
+        return new Promise(resolve => {
+          this.http.get(this.host + this.port + '/predictions/' + parkingLotName)
+            .map(res => res.json())
+            .subscribe(data => {
+              this.getPredictionsResponse = data;
+              resolve(this.getPredictionsResponse);
+            });
+        });
+      }
     // templateCall1() {
     //   // if (this.getSpotsResponse) {
     //   //     // already loaded data

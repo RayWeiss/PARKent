@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/env python3
 from flask import Flask
 from flask_cors import CORS
 import MySQLdb
@@ -142,5 +142,12 @@ def getFracLeft():
 
     return json.dumps(result)
 
+@app.route("/predictions/<parkingLotName>")
+def getPredictionsFor(parkingLotName):
+    return query("SELECT percentFilled FROM " + parkingLotName + "Prediction")
+
 if __name__ == "__main__":
+    # local
     app.run()
+    # remote
+    # app.run(host='0.0.0.0',port='5000')

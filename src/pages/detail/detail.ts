@@ -1,31 +1,24 @@
 import { Component, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, Slides } from 'ionic-angular';
 import { Chart } from 'chart.js';
+import { DbRestServiceProvider } from '../../providers/db-rest-service/db-rest-service';
 
-//general variables
 var chartType = 'bar';
-var xLabel = ["9am","10am","11am","12pm","1pm","2pm","3pm","4pm","5pm","6pm","7pm","8pm","9pm"]
+var xLabel = ["9am","9:15am","9:30am","9:45am",
+              "10am","10:15am","10:30am","10:45am",
+              "11am","11:15am","11:30am","11:45am",
+              "12pm","10:15pm","10:30pm","10:45pm",
+              "1pm","1:15pm","1:30pm","1:45pm",
+              "2pm","2:15pm","2:30pm","2:45pm",
+              "3pm","3:15pm","3:30pm","3:45pm",
+              "4pm","4:15pm","4:30pm","4:45pm",
+              "5pm","5:15pm","5:30pm","5:45pm",
+              "6pm","6:15pm","6:30pm","6:45pm",
+              "7pm","7:15pm","7:30pm","7:45pm",
+              "8pm","8:15pm","8:30pm","8:45pm",
+              "9pm"]
 var legendLabel = "Predicted % Full";
-
-//data for each chart
-var mondayPercentFull = [15,35,38,47,55,80,82,65,50,45,32,22,18]
-var tuesdayPercentFull = [18,13,35,38,47,55,80,82,65,50,45,32,22]
-var wednesdayPercentFull = [18,13,35,38,47,55,80,82,65,50,45,32,22]
-var thursdayPercentFull = [18,13,35,38,47,55,80,82,65,50,45,32,22]
-var fridayPercentFull = [18,13,35,38,47,55,80,82,65,50,45,32,22]
-var saturdayPercentFull = [18,13,35,38,47,55,80,82,65,50,45,32,22]
-var sundayPercentFull = [18,13,35,38,47,55,80,82,65,50,45,32,22]
-
-//color of each chart
 var blue = "rgb(77, 148, 255)";
-// var mondayColor = "rgb(77, 148, 255)";
-// var tuesdayColor = "rgb(78, 230, 99)";
-// var wednesdayColor = "rgb(215, 230, 78)";
-// var thursdayColor = "rgb(230, 176, 78)";
-// var fridayColor = "rgb(230, 82, 78)";
-// var saturdayColor = "rgb(230, 78, 199)";
-// var sundayColor = "rgb(200, 78, 230)";
-
 Chart.defaults.global.maintainAspectRatio = true;
 
 @IonicPage({
@@ -49,16 +42,29 @@ export class DetailPage {
   barChart: any;
   lot: any;
   item: any;
+  db: any;
+  allPredictions: any[];
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+
+  constructor(public navCtrl: NavController, public navParams: NavParams, public dbService: DbRestServiceProvider) {
+    this.allPredictions = [];
     this.item = navParams.get('item');
     this.barChart = ["mondayChart", "tuesdayChart", "wednesdayChart", "thursdayChart", "fridayChart", "saturdayChart", "sundayChart"];
     this.lot = [this.item.lotName];
+    this.db = dbService;
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad DetailPage');
-    this.initializeCharts();
+    this.db.getPredictionsFor(this.item.lotName)
+    .then(response => {
+      for (var val in response) {
+        console.log(response[val][0]);
+        this.allPredictions.push(response[val][0]);
+      }
+    }).then(response => {
+      this.initializeCharts();
+    });
   }
 
   initializeCharts() {
@@ -68,7 +74,7 @@ export class DetailPage {
       data: {
         labels: xLabel,
         datasets: [{
-          data: mondayPercentFull,
+          data: this.allPredictions.slice(36,36+49),
           label: legendLabel,
           backgroundColor: blue,
         }]
@@ -81,7 +87,7 @@ export class DetailPage {
       data: {
         labels: xLabel,
         datasets: [{
-          data: tuesdayPercentFull,
+          data: this.allPredictions.slice(132,132+49),
           label: legendLabel,
           backgroundColor: blue
         }]
@@ -94,7 +100,7 @@ export class DetailPage {
       data: {
         labels: xLabel,
         datasets: [{
-          data: wednesdayPercentFull,
+          data: this.allPredictions.slice(228,228+49),
           label: legendLabel,
           backgroundColor: blue
         }]
@@ -107,7 +113,7 @@ export class DetailPage {
       data: {
         labels: xLabel,
         datasets: [{
-          data: thursdayPercentFull,
+          data: this.allPredictions.slice(324,324+49),
           label: legendLabel,
           backgroundColor: blue
         }]
@@ -120,7 +126,7 @@ export class DetailPage {
       data: {
         labels: xLabel,
         datasets: [{
-          data: fridayPercentFull,
+          data: this.allPredictions.slice(420,420+49),
           label: legendLabel,
           backgroundColor: blue
         }]
@@ -133,7 +139,7 @@ export class DetailPage {
       data: {
         labels: xLabel,
         datasets: [{
-          data: saturdayPercentFull,
+          data: this.allPredictions.slice(516,516+49),
           label: legendLabel,
           backgroundColor: blue
         }]
@@ -146,7 +152,7 @@ export class DetailPage {
       data: {
         labels: xLabel,
         datasets: [{
-          data: sundayPercentFull,
+          data: this.allPredictions.slice(612,612+49),
           label: legendLabel,
           backgroundColor: blue
         }]
