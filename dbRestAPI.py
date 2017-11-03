@@ -85,6 +85,19 @@ def getSpotsLeft(parkingLotName):
         for item in result:
             return str(item)
 
+def getTimestamp(parkingLotName):
+    db = MySQLdb.connect(host="localhost",
+                         user="develop",
+                         passwd="password",
+                         db="parking_data")
+
+    cur = db.cursor()
+    cur.execute("SELECT timestamp FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1")
+    results = cur.fetchall()
+    for result in results:
+        for item in result:
+            return str(item)
+
 def getTotalSpots(parkingLotName):
     db = MySQLdb.connect(host="localhost",
                          user="develop",
@@ -122,6 +135,23 @@ def getAllStatus():
 
     for lot in lotsArr:
         dic[lot] = str(getPercent(lot))
+    result = []
+    result.append(dic)
+
+    return json.dumps(result)
+
+@app.route("/allFullStatus")
+def getAllFullStatus():
+    lotsArr = queryArray("SELECT name FROM lots")
+    dic = collections.OrderedDict()
+
+    for lot in lotsArr:
+        fullArr = []
+        fullArr.append(str(getPercent(lot)))
+        fullArr.append(str(getSpotsLeft(lot)))
+        fullArr.append(str(getTotalSpots(lot)))
+        fullArr.append(str(getTimestamp(lot)))
+        dic[lot] = fullArr
     result = []
     result.append(dic)
 
