@@ -17,7 +17,7 @@ export class DbRestServiceProvider {
 
   // // remote
   // host = 'http://131.123.35.143';
-  // port = '5000';
+  // port = ':5000';
 
   constructor(public http: Http) {
     console.log('Hello DbRestServiceProvider Provider');
