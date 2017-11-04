@@ -55,19 +55,22 @@ def addLot(lotName, totalSpots, lat, lon, url):
 
 
 
-def createDB(dbName):
+def createDB(dbName, lat, lon):
 	try:
 		db = MySQLdb.connect(host, user, passwd)
 
 		dbQuery = "create database " + dbName + ";"
 		useQuery = "use " + dbName + ";" 
 		centerQuery = "create table center (lat double(10,8), lon double(10,8));"
-
+		insertQuery = "insert into center values (" + lat + "," + lon + ");"
 		cur = db.cursor()
 		cur.execute(dbQuery)
 		cur.execute(useQuery)
 		cur.execute(centerQuery)
+		cur.execute(insertQuery)
+		db.commit()
 		successJson = "{\"0\":\"true\"}"
+		db.close()
 		return successJson
 
 	except MySQLdb.Error as e:
@@ -165,9 +168,7 @@ def removeLot(lotName):
 #needs procedure for adding center
 @app.route("/createdb/<dbName>/<lat>/<lon>")
 def createDatabase(dbName, lat, lon):
-	createDB(dbName)
-	return addProcedures(dbName)
-	return addCenter(dbName, lat,lon)
+	return createDB(dbName, lat, lon)
 
 @app.route("/dropdb/<dbName>")
 def dropDB(dbName):

@@ -1,36 +1,3 @@
-proc1 = """DELIMITER //'
-CREATE PROCEDURE insertCenter
-(IN lat double(10,8), lon double(11,8))
-BEGIN
-  INSERT INTO center VALUES(lat, lon); 
-END //
-DELIMITER ; """
-
-proc2 = """DELIMITER //
-CREATE PROCEDURE remove_from_lots
-(IN name VARCHAR(25))
-BEGIN
-  SET @removeTableStmt = CONCAT('DELETE FROM lots where name = "', name, '";');
-  PREPARE dataStmt FROM @removeTableStmt;
-  EXECUTE dataStmt;
-END //
-DELIMITER ;"""
-
-
-proc3 = """DELIMITER //
-CREATE PROCEDURE add_lot
-(IN name VARCHAR(25), totalSpots INT(10), lat DOUBLE(10,8), lon DOUBLE(11,8), url VARCHAR(60))
-BEGIN
-  INSERT INTO lots VALUES (name, totalSpots, lat, lon, url);
-  SET @CreateDataTableStmt = CONCAT('CREATE TABLE ', name, 'Data ( timeStamp TIMESTAMP NOT NULL, freeSpots INT(10) UNSIGNED NOT NULL, PRIMARY KEY (timeStamp));');
-  PREPARE dataStmt FROM @CreateDataTableStmt;
-  EXECUTE dataStmt;
-  SET @CreatePredTableStmt = CONCAT('CREATE TABLE ', name, 'Prediction ( intrvl MEDIUMINT NOT NULL AUTO_INCREMENT, percentFilled DOUBLE(11,8) NOT NULL, PRIMARY KEY (intrvl) );');
-  PREPARE predStmt FROM @CreatePredTableStmt;
-  EXECUTE predStmt;
-END //
-DELIMITER ;"""
-
 proc4 = """DELIMITER //
 CREATE PROCEDURE validate_login
 (IN username_to_validate VARCHAR(16), password_to_validate VARCHAR(16), OUT valid INT(1))
