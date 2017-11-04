@@ -12,144 +12,149 @@ CORS(app)
 #DATABASE CREDENTIALS
 host="localhost"
 user="root"
-passwd="Password"
+passwd="root"
 
 def query(queryString):
-    try:
-        db = MySQLdb.connect(host,
-                             user,
-                             passwd,
-                             db="parking_data")
+	try:
+		db = MySQLdb.connect(host, user, passwd, db="parking_data")
 
-        cur = db.cursor()
-        cur.execute(queryString)
-        results = cur.fetchall()
-        resultsArray = []
-        rowCount = 0
-        for result in results:
-            itemCount = 0
-            dic = collections.OrderedDict()
-            for item in result:
-                dic[itemCount] = str(item)
-                itemCount += 1
-            resultsArray.append(dic)
-            rowCount += 1
-        return json.dumps(resultsArray)
-        # db.commit();
+		cur = db.cursor()
+		cur.execute(queryString)
+		results = cur.fetchall()
+		resultsArray = []
+		rowCount = 0
+		for result in results:
+			itemCount = 0
+			dic = collections.OrderedDict()
+			for item in result:
+				dic[itemCount] = str(item)
+				itemCount += 1
+			resultsArray.append(dic)
+			rowCount += 1
+		return json.dumps(resultsArray)
+		# db.commit();
 
-    except MySQLdb.Error as e:
-        return returnError(e)
+	except MySQLdb.Error as e:
+		return returnError(e)
 
 def addLot(lotName, totalSpots, lat, lon, url):
-        try:
-                db = MySQLdb.connect(host,
-                             user,
-                             passwd,
-                             db="parking_data")
+	try:
+		db = MySQLdb.connect(host, user, passwd, db="parking_data")
 
-                useQuery = "use parking_data;"
-                query = "Call add_lot (\"" + lotName + "\"," + totalSpots + "," + lat + "," + lon + ",\"" + url + "\");"
-                cur = db.cursor()
-                cur.execute(query)
-                cur.execute(useQuery)
-                successJson = "{\"0\":\"true\"}"
-                return successJson
+		useQuery = "use parking_data;"
+		query = "Call add_lot (\"" + lotName + "\"," + totalSpots + "," + lat + "," + lon + ",\"" + url + "\");"
+		cur = db.cursor()
+		cur.execute(query)
+		cur.execute(useQuery)
+		successJson = "{\"0\":\"true\"}"
+		return successJson
 
-        except MySQLdb.Error as e:
-            return returnError(e)
+	except MySQLdb.Error as e:
+		return returnError(e)
 
 
 
 def createDB(dbName):
-        try:
-                db = MySQLdb.connect(host,
-                             user,
-                             passwd)
+	try:
+		db = MySQLdb.connect(host, user, passwd)
 
-                dbQuery = "create database " + dbName + ";"
-                useQuery = "use parking_data;"
-                centerQuery = "create table center (lat double(10,8), lon double(10,8));"
+		dbQuery = "create database " + dbName + ";"
+		useQuery = "use " + dbName + ";" 
+		centerQuery = "create table center (lat double(10,8), lon double(10,8));"
 
-                cur = db.cursor()
-                cur.execute(dbQuery)
-                cur.execute(useQuery)
-                cur.execute(centerQuery)
-                successJson = "{\"0\":\"true\"}"
-                return successJson
+		cur = db.cursor()
+		cur.execute(dbQuery)
+		cur.execute(useQuery)
+		cur.execute(centerQuery)
+		successJson = "{\"0\":\"true\"}"
+		return successJson
 
-        except MySQLdb.Error as e:
-            return returnError(e)
+	except MySQLdb.Error as e:
+		return returnError(e)
 
+def addProcedures(dbName):
+	try:
+		db = MySQLdb.connect(host, user, passwd)
 
+		cur = db.cursor()
+		dbQuery = ""
+		useQuery = "use " + dbName + ";"
+		cur.execute(useQuery)
+		with open("dbProcedures.txt") as dbFile:
+			for line in dbFile:
+				cur.execute(line)
+
+	except MySQLdb.Error as e:
+		return returnError(e)
+	'''except:
+	return "error adding procedures"'''
 def addCenter(dbName, lat, lon):
-        try:
-                db = MySQLdb.connect(host,
-                             user,
-                             passwd)
+	try:
+		db = MySQLdb.connect(host,
+			user,
+			passwd)
 
-                cur = db.cursor()
-                useQuery = "use " + dbName + ";"
-                insertQuery = "call insertCenter(" + lat + "," + lon + ");"
-                print (useQuery)
-                cur.execute(useQuery)
-                cur.execute(insertQuery)
-                successJson = "{\"0\":\"true\"}"
-                return successJson
+		cur = db.cursor()
+		useQuery = "use " + dbName + ";"
+		insertQuery = "call insertCenter(" + lat + "," + lon + ");"
+		print (useQuery)
+		cur.execute(useQuery)
+		cur.execute(insertQuery)
+		successJson = "{\"0\":\"true\"}"
+		return successJson
 
-        except MySQLdb.Error as e:
-            return returnError(e)
+	except MySQLdb.Error as e:
+		return returnError(e)
 
 def removeDB(dbName):
-        try:
-                db = MySQLdb.connect(host,
-                             user,
-                             passwd)
+	try:
+		db = MySQLdb.connect(host,
+			user,
+			passwd)
 
-                cur = db.cursor()
-                dropQuery = "drop database " + dbName + ";"
-                cur.execute(dropQuery)
-                successJson = "{\"0\":\"true\"}"
-                return successJson
+		cur = db.cursor()
+		dropQuery = "drop database " + dbName + ";"
+		cur.execute(dropQuery)
+		successJson = "{\"0\":\"true\"}"
+		return successJson
 
-        except MySQLdb.Error as e:
-            return returnError(e)
+	except MySQLdb.Error as e:
+		return returnError(e)
 
 def dropLot( lotName):
-        try:
-                db = MySQLdb.connect(host,
-                             user,
-                             passwd) 
-                cur = db.cursor()
-                useQuery = "use parking_data;"
-                dropDataQuery = "drop table " + lotName + "Data;"
-                dropPredictionQuery = "drop table " + lotName + "Prediction;"
-                removeFromLots = "Call remove_from_lots (\"" + lotName + "\");"
-                
-                print(removeFromLots)
-                cur.execute(useQuery)
-                cur.execute(removeFromLots)
-                cur.execute(dropDataQuery)
-                cur.execute(dropPredictionQuery)
-                successJson = "{\"0\":\"true\"}"
-                return successJson
+	try:
+		db = MySQLdb.connect(host, user, passwd, db="parking_data")
+		cur = db.cursor()
+		useQuery = "use parking_data;"
+		dropDataQuery = "drop table " + lotName + "Data;"
+		dropPredictionQuery = "drop table " + lotName + "Prediction;"
+		removeFromLots = "Call remove_from_lots (\"" + lotName + "\");"
 
-        except MySQLdb.Error as e:
-            return returnError(e)
+		print(removeFromLots)
+		cur.execute(useQuery)
+		cur.execute(removeFromLots)
+		cur.execute(dropDataQuery)
+		cur.execute(dropPredictionQuery)
+		successJson = "{\"0\":\"true\"}"
+		return successJson
+
+	except MySQLdb.Error as e:
+		return returnError(e)
 
 def returnError(e):
-                errorArray = []
-                errorDic = collections.OrderedDict()
-                errorDic["errors"] = str(e)
-                errorArray.append(errorDic)
-                print("mySQL Query Error: ", e)
-                return json.dumps(errorArray)
+	errorArray = []
+	errorDic = collections.OrderedDict()
+	errorDic["errors"] = str(e)
+	errorArray.append(errorDic)
+	print("mySQL Query Error: ", e)
+	return json.dumps(errorArray)
 
 
 
 
 @app.route("/addlot/<lotName>/<totalSpots>/<lat>/<lon>/<url>")
 def addNewLot(lotName, totalSpots, lat, lon, url):
-        return addLot(lotName, totalSpots, lat, lon, url)
+	return addLot(lotName, totalSpots, lat, lon, url)
 
 #@app.route("/removelot/<dbName>/<lotName>")
 @app.route("/removelot/<lotName>")
@@ -160,6 +165,7 @@ def removeLot(lotName):
 @app.route("/createdb/<dbName>/<lat>/<lon>")
 def createDatabase(dbName, lat, lon):
 	createDB(dbName)
+	return addProcedures(dbName)
 	return addCenter(dbName, lat,lon)
 
 @app.route("/dropdb/<dbName>")
