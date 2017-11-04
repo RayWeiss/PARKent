@@ -4,6 +4,7 @@ from flask_cors import CORS
 import MySQLdb
 import collections
 import json
+import dbProcedures
 
 app = Flask(__name__)
 CORS(app)
@@ -80,9 +81,9 @@ def addProcedures(dbName):
 		dbQuery = ""
 		useQuery = "use " + dbName + ";"
 		cur.execute(useQuery)
-		with open("dbProcedures.txt") as dbFile:
-			for line in dbFile:
-				cur.execute(line)
+		#with open("dbProcedures.txt") as dbFile:
+			#for line in dbFile:
+		cur.execute(dbProcedures.proc1)
 
 	except MySQLdb.Error as e:
 		return returnError(e)

@@ -1,13 +1,12 @@
-DELIMITER //'
+proc1 = """DELIMITER //'
 CREATE PROCEDURE insertCenter
 (IN lat double(10,8), lon double(11,8))
 BEGIN
-  INSERT INTO center VALUES(lat, lon);
-
+  INSERT INTO center VALUES(lat, lon); 
 END //
-DELIMITER ;
+DELIMITER ; """
 
-DELIMITER //
+proc2 = """DELIMITER //
 CREATE PROCEDURE remove_from_lots
 (IN name VARCHAR(25))
 BEGIN
@@ -15,10 +14,10 @@ BEGIN
   PREPARE dataStmt FROM @removeTableStmt;
   EXECUTE dataStmt;
 END //
-DELIMITER ;
+DELIMITER ;"""
 
 
-DELIMITER //
+proc3 = """DELIMITER //
 CREATE PROCEDURE add_lot
 (IN name VARCHAR(25), totalSpots INT(10), lat DOUBLE(10,8), lon DOUBLE(11,8), url VARCHAR(60))
 BEGIN
@@ -30,9 +29,9 @@ BEGIN
   PREPARE predStmt FROM @CreatePredTableStmt;
   EXECUTE predStmt;
 END //
-DELIMITER ;
+DELIMITER ;"""
 
-DELIMITER //
+proc4 = """DELIMITER //
 CREATE PROCEDURE validate_login
 (IN username_to_validate VARCHAR(16), password_to_validate VARCHAR(16), OUT valid INT(1))
 BEGIN
@@ -50,4 +49,4 @@ BEGIN
   END;
   END IF;
 END //
-DELIMITER ;
+DELIMITER ;"""
