@@ -19,6 +19,7 @@ export class MapPage {
   map: any;
   db: any;
   markers = new Map<string, google.maps.Marker>();
+  timestamp: any = "";
   green = "00CC00";
   yellow = "FFFF00";
   red = "FF0000";
@@ -119,11 +120,18 @@ export class MapPage {
               let lots = results[result];
               for(var lot in lots){
                 var lotName = lot;
-                var percentFilled = lots[lot];
+                var status = lots[lot];
+                var percentFilled = status[0];
+                // var spotsLeft = status[1];
+                // var totalSpots = status[2];
+                var timestamp = status[3];
+                this.timestamp = timestamp;
                 this.markers.get(lotName).setIcon(this.getPinWithHexColor(this.getColorForPercent(percentFilled)));
               }
             }
         });
     });
   }
+
+
 }

@@ -1,4 +1,11 @@
 page-map {
+  #floating-timestamp {
+  position: absolute;
+  z-index: 1;
+  padding: 5px;
+  background-color: #dfdfdf;
+  color: #ffffff;
+}
   #map {
     height: 100%;
   }

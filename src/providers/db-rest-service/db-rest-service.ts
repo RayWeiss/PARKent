@@ -36,7 +36,7 @@ export class DbRestServiceProvider {
 
     getAllStatus() {
         return new Promise(resolve => {
-          this.http.get(this.host + this.port + '/allStatus')
+          this.http.get(this.host + this.port + '/allFullStatus')
             .map(res => res.json())
             .subscribe(data => {
               this.getAllStatusResponse = data;
