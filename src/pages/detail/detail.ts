@@ -21,6 +21,8 @@ var legendLabel = "Busy Times";
 var blue = "rgb(77, 148, 255)";
 Chart.defaults.global.maintainAspectRatio = true;
 var showYAxis = false;
+var beginAtZeroYAxis = true;
+var maxYAxis = 1.0;
 
 @IonicPage({
   name: 'DetailPage'
@@ -76,13 +78,17 @@ export class DetailPage {
         scales: {
           yAxes: [{
             display: showYAxis,
+            ticks: {
+                beginAtZero: beginAtZeroYAxis,
+                max: maxYAxis
+            }
           }],
         }
       },
       data: {
         labels: xLabel,
         datasets: [{
-          data: this.allPredictions.slice(0,48),
+          data: this.allPredictions.slice(0,47),
           label: legendLabel,
           backgroundColor: blue,
         }]
@@ -96,6 +102,10 @@ export class DetailPage {
         scales: {
           yAxes: [{
             display: showYAxis,
+            ticks: {
+                beginAtZero: beginAtZeroYAxis,
+                max: maxYAxis
+            }
           }],
         }
       },
@@ -116,6 +126,10 @@ export class DetailPage {
         scales: {
           yAxes: [{
             display: showYAxis,
+            ticks: {
+                beginAtZero: beginAtZeroYAxis,
+                max: maxYAxis
+            }
           }],
         }
       },
@@ -136,6 +150,10 @@ export class DetailPage {
         scales: {
           yAxes: [{
             display: showYAxis,
+            ticks: {
+                beginAtZero: beginAtZeroYAxis,
+                max: maxYAxis
+            }
           }],
         }
       },
@@ -156,6 +174,10 @@ export class DetailPage {
         scales: {
           yAxes: [{
             display: showYAxis,
+            ticks: {
+                beginAtZero: beginAtZeroYAxis,
+                max: maxYAxis
+            }
           }],
         }
       },
@@ -176,6 +198,10 @@ export class DetailPage {
         scales: {
           yAxes: [{
             display: showYAxis,
+            ticks: {
+                beginAtZero: beginAtZeroYAxis,
+                max: maxYAxis
+            }
           }],
         }
       },
@@ -196,6 +222,10 @@ export class DetailPage {
         scales: {
           yAxes: [{
             display: showYAxis,
+            ticks: {
+                beginAtZero: beginAtZeroYAxis,
+                max: maxYAxis
+            }
           }],
         }
       },

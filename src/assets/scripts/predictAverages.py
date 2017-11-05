@@ -5,9 +5,6 @@ from datetime import datetime
 from datetime import timedelta
 import pandas as pd
 import numpy as np
-import matplotlib.pylab as plt
-from statsmodels.tsa.seasonal import seasonal_decompose
-from statsmodels.tsa.arima_model import ARIMA
 
 def getConnection():
     return MySQLdb.connect(host="localhost",
@@ -50,110 +47,88 @@ def makePredictions(lotName, size):
     parkinglotName = lotName
     totalSpaces = size
 
-    # Hour range to pull data from predicitons
+    # Predictions time range and step interval
     beginTime = "09:00:00"
     endTime = "21:00:00"
+    intervalMinutes = 15
 
-    # Day range to pull data from predicitons
-    beginDay = "2017-10-02"
-    endDay = "2017-10-08"
-
-    # Days to sample for predictions (+1 day, and hours adjusted to limit NaN values)
-    start = datetime(2017,10,1,0,0,0)
-    end = datetime(2017,10,8,23,59,59)
-
-    # Convert to parameters for query
-    startParam = '\"{0}\"'.format(str(start))
-    endParam = '\"{0}\"'.format(str(end))
+    # Predictions output containers
+    totalIntervals = 343;
+    intervalsPerDay = 49
+    allValues = [[] for x in range(totalIntervals)]
+    averages = []
+    finalPredictions = []
 
     # Format query
-    queryString = 'select timestamp, freeSpots from {0} where timestamp between {1} and {2};'.format(parkinglotName + "data",startParam,endParam)
+    queryString = 'select timestamp, freeSpots from {0};'.format(parkinglotName + "data")
 
     # Read data from DB
-    data = pd.read_sql((queryString),getConnection(),parse_dates=['timestamp'],index_col=['timestamp'])
+    fullDF = pd.read_sql((queryString),getConnection(),parse_dates=['timestamp'],index_col=['timestamp'])
 
     # Get free spot data
-    weekData = data['freeSpots']
+    df = fullDF['freeSpots']
 
-    # Decompose data
-    decomposition = seasonal_decompose(weekData, freq=288)
+    # Get all unique days
+    days = pd.Series(df.index).map(pd.Timestamp.date).unique()
 
-    trend = decomposition.trend
-    seasonal = decomposition.seasonal
-    residual = decomposition.resid
+    # iterates over every day in series
+    for day in days:
+        # Get current day date string
+        currentDayString = str(day)
 
-    # Perform stats on data to make more stationary
-    residual_cbrt = np.cbrt(residual)
-    residual_cbrt.dropna(inplace=True)
+        # Set start and end ranges
+        begin = pd.to_datetime(currentDayString + " " + beginTime)
+        end = pd.to_datetime(currentDayString + " " + endTime)
+        current = begin
 
-    # Predict off of data
-    # Get ARIMA model, fit results
-    arima_model = ARIMA(residual_cbrt, order=(2, 1, 2))
-    arima_results = arima_model.fit(disp=-1)
+        # Get weekday integer mon = 0 sun = 6
+        weekdayInt = begin.weekday()
 
-    # Convert to timeseries
-    prediction_series = pd.Series(arima_results.fittedvalues, copy=True)
+        # Iterates over every interval in current day
+        currentIntervalInt = 0
+        while current <= end:
+            closestValue = df.iloc[df.index.get_loc(current, method='nearest')]
+            allValues[weekdayInt * intervalsPerDay + currentIntervalInt].append(closestValue)
 
-    # Get cummulative summation
-    prediction_series_cumsum = prediction_series.cumsum()
+            # Increment to next 15 minute interval
+            current = current + timedelta(minutes=intervalMinutes)
+            currentIntervalInt += 1
 
-    # Set index and add back cummulative summation, fill empty values with 0
-    prediction_series_cbrt = pd.Series(residual_cbrt.ix[0], index=residual_cbrt.index)
-    prediction_series_cbrt = prediction_series_cbrt.add(prediction_series_cumsum,fill_value=0)
+    # finds averages of each interval
+    for intrvl in allValues:
+        size = len(intrvl)
+        if size > 0:
+            total = 0
+            for val in intrvl:
+                total += val
+            avg = total / size
+            averages.append(avg)
+        else:
+            averages.append(0)
 
-    # Calculate the exponential of all elements in the input array. (unused)
-    exponentials = np.exp(prediction_series_cbrt)
+    # Calculate percent filled
+    for val in averages:
+        finalPredictions.append((totalSpaces - val) / totalSpaces)
 
-    # Reverse previous transformations for final prediction
-    final_prediction = (np.power(prediction_series_cbrt, 3) + trend + seasonal)
-
-    # # Plot data
-    # plt.plot(weekData)
-    # plt.plot(final_prediction)
-    # # plt.plot(final_prediction - 23)
-    # plt.show()
-
-    # Set start and end ranges
-    beginDatetime = pd.to_datetime(beginDay + " " + beginTime)
-    endDatetime = pd.to_datetime(endDay + " " + endTime)
-    currentDatetime = beginDatetime
-    todayEndDatetime = pd.to_datetime(currentDatetime.strftime("%Y-%m-%d") + " " + endTime)
-
-    # Get DB connection
+    # Get db connection
     db = getConnection()
 
     # Drop old predictions
     dropOldPredictions(db, parkinglotName)
 
     # Insert new predictions
-    while currentDatetime <= endDatetime:
-        while currentDatetime <= todayEndDatetime:
-            # Get closest value to current interval
-            closestValue = final_prediction.iloc[final_prediction.index.get_loc(currentDatetime, method='nearest')]
-            # Check if value is not a number
-            if np.isnan(closestValue):
-                closestValue = 0
+    for val in finalPredictions:
+        insertPredictionValues(db, parkinglotName, val)
 
-            # Calculate percent filled
-            percentFilled = (totalSpaces - closestValue) / totalSpaces
-
-            # Handle bad values
-            if percentFilled < 0:
-                percentFilled = 0
-            if percentFilled > 1:
-                percentFilled = 1
-
-            # Insert final result into DB
-            insertPredictionValues(db, parkinglotName, percentFilled)
-
-            # Increment to next 15 minute interval
-            currentDatetime = currentDatetime + timedelta(minutes=15)
-
-        # Increment to next day
-        currentDatetime = currentDatetime + timedelta(days=1)
-        currentDatetime = pd.to_datetime(currentDatetime.strftime("%Y-%m-%d") + " " + beginTime)
-        todayEndDatetime = pd.to_datetime(currentDatetime.strftime("%Y-%m-%d") + " " + endTime)
-
+    # # iterates through series
+    # i = 0
+    # for freeSpots in df:
+    #     timestamp = df.index[i]
+    #     spotsLeft = freeSpots
+    #
+    #     print(timestamp, spotsLeft)
+    #
+    #     i += 1
 
 # make predictions for all lots
 lotDic = getLotNamesAndSize()
