@@ -17,9 +17,10 @@ var xLabel = ["9am","9:15am","9:30am","9:45am",
               "7pm","7:15pm","7:30pm","7:45pm",
               "8pm","8:15pm","8:30pm","8:45pm",
               "9pm"]
-var legendLabel = "Predicted % Full";
+var legendLabel = "Busy Times";
 var blue = "rgb(77, 148, 255)";
 Chart.defaults.global.maintainAspectRatio = true;
+var showYAxis = false;
 
 @IonicPage({
   name: 'DetailPage'
@@ -71,10 +72,17 @@ export class DetailPage {
     //Monday
     this.mondayChart = new Chart(this.mondayChart.nativeElement, {
       type: chartType,
+      options: {
+        scales: {
+          yAxes: [{
+            display: showYAxis,
+          }],
+        }
+      },
       data: {
         labels: xLabel,
         datasets: [{
-          data: this.allPredictions.slice(36,36+49),
+          data: this.allPredictions.slice(0,48),
           label: legendLabel,
           backgroundColor: blue,
         }]
@@ -84,10 +92,17 @@ export class DetailPage {
     //Tuesday
     this.tuesdayChart = new Chart(this.tuesdayChart.nativeElement, {
       type: chartType,
+      options: {
+        scales: {
+          yAxes: [{
+            display: showYAxis,
+          }],
+        }
+      },
       data: {
         labels: xLabel,
         datasets: [{
-          data: this.allPredictions.slice(132,132+49),
+          data: this.allPredictions.slice(49,97),
           label: legendLabel,
           backgroundColor: blue
         }]
@@ -97,10 +112,17 @@ export class DetailPage {
     //Wednesday
     this.wednesdayChart = new Chart(this.wednesdayChart.nativeElement, {
       type: chartType,
+      options: {
+        scales: {
+          yAxes: [{
+            display: showYAxis,
+          }],
+        }
+      },
       data: {
         labels: xLabel,
         datasets: [{
-          data: this.allPredictions.slice(228,228+49),
+          data: this.allPredictions.slice(98,146),
           label: legendLabel,
           backgroundColor: blue
         }]
@@ -110,10 +132,17 @@ export class DetailPage {
     //Thursday
     this.thursdayChart = new Chart(this.thursdayChart.nativeElement, {
       type: chartType,
+      options: {
+        scales: {
+          yAxes: [{
+            display: showYAxis,
+          }],
+        }
+      },
       data: {
         labels: xLabel,
         datasets: [{
-          data: this.allPredictions.slice(324,324+49),
+          data: this.allPredictions.slice(147,195),
           label: legendLabel,
           backgroundColor: blue
         }]
@@ -123,10 +152,17 @@ export class DetailPage {
     //Friday
     this.fridayChart = new Chart(this.fridayChart.nativeElement, {
       type: chartType,
+      options: {
+        scales: {
+          yAxes: [{
+            display: showYAxis,
+          }],
+        }
+      },
       data: {
         labels: xLabel,
         datasets: [{
-          data: this.allPredictions.slice(420,420+49),
+          data: this.allPredictions.slice(196,244),
           label: legendLabel,
           backgroundColor: blue
         }]
@@ -136,10 +172,17 @@ export class DetailPage {
     //Saturday
     this.saturdayChart = new Chart(this.saturdayChart.nativeElement, {
       type: chartType,
+      options: {
+        scales: {
+          yAxes: [{
+            display: showYAxis,
+          }],
+        }
+      },
       data: {
         labels: xLabel,
         datasets: [{
-          data: this.allPredictions.slice(516,516+49),
+          data: this.allPredictions.slice(245,293),
           label: legendLabel,
           backgroundColor: blue
         }]
@@ -149,10 +192,17 @@ export class DetailPage {
     //Sunday
     this.sundayChart = new Chart(this.sundayChart.nativeElement, {
       type: chartType,
+      options: {
+        scales: {
+          yAxes: [{
+            display: showYAxis,
+          }],
+        }
+      },
       data: {
         labels: xLabel,
         datasets: [{
-          data: this.allPredictions.slice(612,612+49),
+          data: this.allPredictions.slice(294,342),
           label: legendLabel,
           backgroundColor: blue
         }]
