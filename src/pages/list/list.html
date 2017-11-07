@@ -1,11 +1,19 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>List</ion-title>
+    <ion-title>KSU Parking Lot List</ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content>
   <ion-list>
+    <div ion-item>
+      <span class = lot-name-header>
+        <h2><strong>Lot Name</strong></h2>
+      </span>
+      <span class = frac-left-header>
+        <h2><strong>Lot Status</strong></h2>
+      </span>
+    </div>
     <button ion-item *ngFor="let item of items" (click)="itemSelected(item)">
       <span class = lot-name>
         {{ item.lotName }}
