@@ -47,7 +47,7 @@ export class DetailPage {
   item: any;
   db: any;
   allPredictions: any[];
-
+  imgURL = "/../../assets/images/";
 
   constructor(public navCtrl: NavController, public navParams: NavParams, public dbService: DbRestServiceProvider) {
     this.allPredictions = [];
@@ -55,6 +55,7 @@ export class DetailPage {
     this.barChart = ["mondayChart", "tuesdayChart", "wednesdayChart", "thursdayChart", "fridayChart", "saturdayChart", "sundayChart"];
     this.lot = [this.item.lotName];
     this.db = dbService;
+    this.imgURL += this.lot + ".JPG";
   }
 
   ionViewDidLoad() {
