@@ -7,7 +7,6 @@ h5 {
 }
 
 ion-slide {
-    // background-color: rgb(206, 214, 216);
     background-color: rgb(255, 255, 255);
 }
 
@@ -24,4 +23,10 @@ ion-slide {
 canvas {
     height: 100%;
     width: 100%;
+}
+
+.image {
+  text-align:center;
+  display:block;
+  padding: 5px;
 }

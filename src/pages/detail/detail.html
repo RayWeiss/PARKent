@@ -5,6 +5,9 @@
 </ion-header>
 
 <ion-content>
+  <div class='image' *ngFor="let url of lot">
+    <img [attr.src]="imgURL"/>
+  </div>
   <div class='container'>
     <div>
       <ion-slides loop='false' pager='true' class='chartContainer'>
