@@ -119,6 +119,44 @@ def dropLot( lotName):
 	except MySQLdb.Error as e:
 		return returnError(e)
 
+def queryArray(queryString):
+    try:
+        db = MySQLdb.connect(host, user, passwd, db="parking_data")
+        cur = db.cursor()
+        cur.execute(queryString)
+        arr = []
+        for row in cur:
+            arr.append("".join(row))
+        return arr
+    except MySQLdb.Error as e:
+        errorArray = []
+        errorDic = collections.OrderedDict()
+        errorDic["errors"] = str(e)
+        errorArray.append(str(e))
+        print("mySQL Query Error: ", e)
+        return errorArray
+
+def getPercent(parkingLotName):
+    db = MySQLdb.connect(host, user, passwd, db="parking_data")
+    cur = db.cursor()
+    cur.execute("SELECT((SELECT freeSpots FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1) / (SELECT totalSpots FROM lots WHERE name = \"" + parkingLotName + "\")) as percentLeft")
+    results = cur.fetchall()
+    for result in results:
+        for item in result:
+            return str(item)
+
+@app.route("/lotNames")
+def getAllStatus():
+    lotsArr = queryArray("SELECT name FROM lots")
+    dic = collections.OrderedDict()
+
+    #for lot in lotsArr:
+        #dic[lot] = str(getPercent(lot))
+    result = []
+    result.append(lotsArr)
+
+    return json.dumps(result)
+
 def returnError(e):
 	errorArray = []
 	errorDic = collections.OrderedDict()
@@ -126,9 +164,6 @@ def returnError(e):
 	errorArray.append(errorDic)
 	print("mySQL Query Error: ", e)
 	return json.dumps(errorArray)
-
-
-
 
 @app.route("/addlot/<lotName>/<totalSpots>/<lat>/<lon>/<url>")
 def addNewLot(lotName, totalSpots, lat, lon, url):
