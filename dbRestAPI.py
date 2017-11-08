@@ -38,6 +38,7 @@ def query(queryString):
 	except MySQLdb.Error as e:
 		return returnError(e)
 
+@app.route("/addlot/<lotName>/<totalSpots>/<lat>/<lon>/<url>")
 def addLot(lotName, totalSpots, lat, lon, url):
 	try:
 		db = MySQLdb.connect(host, user, passwd, db="parking_data")
@@ -60,7 +61,7 @@ def addLot(lotName, totalSpots, lat, lon, url):
 		return returnError(e)
 
 
-
+@app.route("/createdb/<dbName>/<lat>/<lon>")
 def createDB(dbName, lat, lon):
 	try:
 		db = MySQLdb.connect(host, user, passwd)
@@ -82,6 +83,7 @@ def createDB(dbName, lat, lon):
 	except MySQLdb.Error as e:
 		return returnError(e)
 
+@app.route("/dropdb/<dbName>")
 def removeDB(dbName):
 	try:
 		db = MySQLdb.connect(host,
@@ -97,6 +99,7 @@ def removeDB(dbName):
 	except MySQLdb.Error as e:
 		return returnError(e)
 
+@app.route("/removelot/<lotName>")
 def dropLot( lotName):
 	try:
 		db = MySQLdb.connect(host, user, passwd, db="parking_data")
@@ -129,29 +132,11 @@ def queryArray(queryString):
             arr.append("".join(row))
         return arr
     except MySQLdb.Error as e:
-        errorArray = []
-        errorDic = collections.OrderedDict()
-        errorDic["errors"] = str(e)
-        errorArray.append(str(e))
-        print("mySQL Query Error: ", e)
-        return errorArray
-
-def getPercent(parkingLotName):
-    db = MySQLdb.connect(host, user, passwd, db="parking_data")
-    cur = db.cursor()
-    cur.execute("SELECT((SELECT freeSpots FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1) / (SELECT totalSpots FROM lots WHERE name = \"" + parkingLotName + "\")) as percentLeft")
-    results = cur.fetchall()
-    for result in results:
-        for item in result:
-            return str(item)
+        return returnError(e)
 
 @app.route("/lotNames")
 def getAllStatus():
     lotsArr = queryArray("SELECT name FROM lots")
-    dic = collections.OrderedDict()
-
-    #for lot in lotsArr:
-        #dic[lot] = str(getPercent(lot))
     result = []
     result.append(lotsArr)
 
@@ -165,22 +150,22 @@ def returnError(e):
 	print("mySQL Query Error: ", e)
 	return json.dumps(errorArray)
 
-@app.route("/addlot/<lotName>/<totalSpots>/<lat>/<lon>/<url>")
-def addNewLot(lotName, totalSpots, lat, lon, url):
-	return addLot(lotName, totalSpots, lat, lon, url)
+@app.route("/databases")
+def returnDatabases():
+	try:
+		db = MySQLdb.connect(host,
+			user,
+			passwd)
 
-@app.route("/removelot/<lotName>")
-def removeLot(lotName):
-	return dropLot(lotName)
+		cur = db.cursor()
+		databaseArr = queryArray("show databases like '%parking%';")
+		result = []
+		result.append(databaseArr)
+		return json.dumps(result)
 
-@app.route("/createdb/<dbName>/<lat>/<lon>")
-def createDatabase(dbName, lat, lon):
-	return createDB(dbName, lat, lon)
-
-@app.route("/dropdb/<dbName>")
-def dropDB(dbName):
-	return removeDB(dbName)
-
+	except MySQLdb.Error as e:
+		return returnError(e)
+	
 @app.route("/allLots")
 def getAllLotInfo():
     return query("SELECT * FROM lots")
