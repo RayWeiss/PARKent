@@ -43,11 +43,17 @@ def addLot(lotName, totalSpots, lat, lon, url):
 		db = MySQLdb.connect(host, user, passwd, db="parking_data")
 
 		useQuery = "use parking_data;"
-		query = "Call add_lot (\"" + lotName + "\"," + totalSpots + "," + lat + "," + lon + ",\"" + url + "\");"
+		query = "insert into lots values (\"" + lotName + "\"," + totalSpots + "," + lat + "," + lon + ",\"" + url + "\");"
+		dataTable = "create table " + lotName + "Data ( timeStamp TIMESTAMP NOT NULL, freeSpots INT(10) UNSIGNED NOT NULL, PRIMARY KEY (timeStamp));" 
+		predictTable = "create table " + lotName + "Prediction ( intrvl MEDIUMINT NOT NULL AUTO_INCREMENT, percentFilled DOUBLE(11,8) NOT NULL, PRIMARY KEY (intrvl) );"
 		cur = db.cursor()
-		cur.execute(query)
 		cur.execute(useQuery)
+		cur.execute(query)
+		cur.execute(dataTable)
+		cur.execute(predictTable)
 		successJson = "{\"0\":\"true\"}"
+		db.commit()
+		db.close()
 		return successJson
 
 	except MySQLdb.Error as e:
@@ -68,43 +74,9 @@ def createDB(dbName, lat, lon):
 		cur.execute(useQuery)
 		cur.execute(centerQuery)
 		cur.execute(insertQuery)
+		successJson = "{\"0\":\"true\"}"
 		db.commit()
-		successJson = "{\"0\":\"true\"}"
 		db.close()
-		return successJson
-
-	except MySQLdb.Error as e:
-		return returnError(e)
-
-def addProcedures(dbName):
-	try:
-		db = MySQLdb.connect(host, user, passwd)
-
-		cur = db.cursor()
-		dbQuery = ""
-		useQuery = "use " + dbName + ";"
-		cur.execute(useQuery)
-		#with open("dbProcedures.txt") as dbFile:
-			#for line in dbFile:
-		cur.execute(dbProcedures.proc1)
-
-	except MySQLdb.Error as e:
-		return returnError(e)
-	'''except:
-	return "error adding procedures"'''
-def addCenter(dbName, lat, lon):
-	try:
-		db = MySQLdb.connect(host,
-			user,
-			passwd)
-
-		cur = db.cursor()
-		useQuery = "use " + dbName + ";"
-		insertQuery = "call insertCenter(" + lat + "," + lon + ");"
-		print (useQuery)
-		cur.execute(useQuery)
-		cur.execute(insertQuery)
-		successJson = "{\"0\":\"true\"}"
 		return successJson
 
 	except MySQLdb.Error as e:
@@ -132,7 +104,7 @@ def dropLot( lotName):
 		useQuery = "use parking_data;"
 		dropDataQuery = "drop table " + lotName + "Data;"
 		dropPredictionQuery = "drop table " + lotName + "Prediction;"
-		removeFromLots = "Call remove_from_lots (\"" + lotName + "\");"
+		removeFromLots = "delete from lots where name = \""+ lotName + "\";"
 
 		print(removeFromLots)
 		cur.execute(useQuery)
@@ -140,6 +112,8 @@ def dropLot( lotName):
 		cur.execute(dropDataQuery)
 		cur.execute(dropPredictionQuery)
 		successJson = "{\"0\":\"true\"}"
+		db.commit()
+		db.close()
 		return successJson
 
 	except MySQLdb.Error as e:
@@ -160,12 +134,10 @@ def returnError(e):
 def addNewLot(lotName, totalSpots, lat, lon, url):
 	return addLot(lotName, totalSpots, lat, lon, url)
 
-#@app.route("/removelot/<dbName>/<lotName>")
 @app.route("/removelot/<lotName>")
 def removeLot(lotName):
 	return dropLot(lotName)
 
-#needs procedure for adding center
 @app.route("/createdb/<dbName>/<lat>/<lon>")
 def createDatabase(dbName, lat, lon):
 	return createDB(dbName, lat, lon)
