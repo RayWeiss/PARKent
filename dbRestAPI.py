@@ -4,7 +4,6 @@ from flask_cors import CORS
 import MySQLdb
 import collections
 import json
-import dbProcedures
 
 app = Flask(__name__)
 CORS(app)
@@ -13,7 +12,7 @@ CORS(app)
 #DATABASE CREDENTIALS
 host="localhost"
 user="root"
-passwd="root"
+passwd="Password"
 
 def query(queryString):
 	try:
@@ -38,14 +37,14 @@ def query(queryString):
 	except MySQLdb.Error as e:
 		return returnError(e)
 
-@app.route("/addlot/<lotName>/<totalSpots>/<lat>/<lon>/<url>")
-def addLot(lotName, totalSpots, lat, lon, url):
+@app.route("/addlot/<lotName>/<totalSpots>/<lat>/<lon>/<lotNum>")
+def addLot(lotName, totalSpots, lat, lon, lotNum):
 	try:
 		db = MySQLdb.connect(host, user, passwd, db="parking_data")
-
+		url = "https://streetsoncloud.com/parking/rest/occupancy/id/" + lotNum
 		useQuery = "use parking_data;"
 		query = "insert into lots values (\"" + lotName + "\"," + totalSpots + "," + lat + "," + lon + ",\"" + url + "\");"
-		dataTable = "create table " + lotName + "Data ( timeStamp TIMESTAMP NOT NULL, freeSpots INT(10) UNSIGNED NOT NULL, PRIMARY KEY (timeStamp));" 
+		dataTable = "create table " + lotName + "Data (timeStamp TIMESTAMP NOT NULL, freeSpots INT(10) UNSIGNED NOT NULL, PRIMARY KEY (timeStamp));" 
 		predictTable = "create table " + lotName + "Prediction ( intrvl MEDIUMINT NOT NULL AUTO_INCREMENT, percentFilled DOUBLE(11,8) NOT NULL, PRIMARY KEY (intrvl) );"
 		cur = db.cursor()
 		cur.execute(useQuery)
@@ -70,11 +69,13 @@ def createDB(dbName, lat, lon):
 		useQuery = "use " + dbName + ";" 
 		centerQuery = "create table center (lat double(10,8), lon double(10,8));"
 		insertQuery = "insert into center values (" + lat + "," + lon + ");"
+		lotsTable = "CREATE TABLE lots(name VARCHAR(25) NOT NULL, totalSpots int(10) UNSIGNED NOT NULL, lat DOUBLE(10,8) NOT NULL, lon DOUBLE(11,8) NOT NULL, url VARCHAR(200) NOT NULL, PRIMARY KEY(name));"
 		cur = db.cursor()
 		cur.execute(dbQuery)
 		cur.execute(useQuery)
 		cur.execute(centerQuery)
 		cur.execute(insertQuery)
+		cur.execute(lotsTable)
 		successJson = "{\"0\":\"true\"}"
 		db.commit()
 		db.close()
