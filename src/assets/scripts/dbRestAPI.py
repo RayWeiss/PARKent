@@ -182,6 +182,14 @@ host="localhost"
 user="develop"
 passwd="password"
 
+@app.route("/lotNames")
+def getLotNames():
+	lotsArr = queryArray("SELECT name FROM lots")
+	result = []
+	result.append(lotsArr)
+
+	return json.dumps(result)
+
 @app.route("/addlot/<lotName>/<totalSpots>/<lat>/<lon>/<lotNum>")
 def addLot(lotName, totalSpots, lat, lon, lotNum):
 	try:
