@@ -204,9 +204,9 @@ def getAllFullStatus():
 	return json.dumps(result)
 
 def getTotalSpots(parkingLotName):
-	db = MySQLdb.connect(host="localhost",
-                         user="develop",
-                         passwd="password",
+	db = MySQLdb.connect(host,
+                         user,
+                         passwd,
                          db="parking_data")
 
 	cur = db.cursor()
@@ -217,9 +217,9 @@ def getTotalSpots(parkingLotName):
 			return str(item)
 
 def getTimestamp(parkingLotName):
-	db = MySQLdb.connect(host="localhost",
-                         user="develop",
-                         passwd="password",
+	db = MySQLdb.connect(host,
+                         user,
+                         passwd,
                          db="parking_data")
 
 	cur = db.cursor()
