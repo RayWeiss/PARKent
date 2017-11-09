@@ -12,7 +12,7 @@ CORS(app)
 #DATABASE CREDENTIALS
 host="localhost"
 user="root"
-passwd="Password"
+passwd="root"
 
 def query(queryString):
 	try:
@@ -32,7 +32,6 @@ def query(queryString):
 			resultsArray.append(dic)
 			rowCount += 1
 		return json.dumps(resultsArray)
-		# db.commit();
 
 	except MySQLdb.Error as e:
 		return returnError(e)
@@ -124,24 +123,24 @@ def dropLot( lotName):
 		return returnError(e)
 
 def queryArray(queryString):
-    try:
-        db = MySQLdb.connect(host, user, passwd, db="parking_data")
-        cur = db.cursor()
-        cur.execute(queryString)
-        arr = []
-        for row in cur:
-            arr.append("".join(row))
-        return arr
-    except MySQLdb.Error as e:
-        return returnError(e)
+	try:
+		db = MySQLdb.connect(host, user, passwd, db="parking_data")
+		cur = db.cursor()
+		cur.execute(queryString)
+		arr = []
+		for row in cur:
+			arr.append("".join(row))
+		return arr
+	except MySQLdb.Error as e:
+		return returnError(e)
 
 @app.route("/lotNames")
 def getAllStatus():
-    lotsArr = queryArray("SELECT name FROM lots")
-    result = []
-    result.append(lotsArr)
+	lotsArr = queryArray("SELECT name FROM lots")
+	result = []
+	result.append(lotsArr)
 
-    return json.dumps(result)
+	return json.dumps(result)
 
 def returnError(e):
 	errorArray = []
@@ -150,6 +149,25 @@ def returnError(e):
 	errorArray.append(errorDic)
 	print("mySQL Query Error: ", e)
 	return json.dumps(errorArray)
+
+def getPercent(parkingLotName):
+	db = MySQLdb.connect(host, user, passwd, db="parking_data")
+	cur = db.cursor()
+	cur.execute("SELECT((SELECT freeSpots FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1) / (SELECT totalSpots FROM lots WHERE name = \"" + parkingLotName + "\")) as percentLeft")
+	results = cur.fetchall()
+	for result in results:
+		for item in result:
+			return str(item)
+
+def getSpotsLeft(parkingLotName):
+	db = MySQLdb.connect(host, user, passwd, db="parking_data")
+
+	cur = db.cursor()
+	cur.execute("SELECT freeSpots FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1")
+	results = cur.fetchall()
+	for result in results:
+		for item in result:
+			return str(item)
 
 @app.route("/databases")
 def returnDatabases():
@@ -166,24 +184,91 @@ def returnDatabases():
 
 	except MySQLdb.Error as e:
 		return returnError(e)
+
+
+@app.route("/allFullStatus")
+def getAllFullStatus():
+	lotsArr = queryArray("SELECT name FROM lots")
+	dic = collections.OrderedDict()
+
+	for lot in lotsArr:
+		fullArr = []
+		fullArr.append(str(getPercent(lot)))
+		fullArr.append(str(getSpotsLeft(lot)))
+		fullArr.append(str(getTotalSpots(lot)))
+		fullArr.append(str(getTimestamp(lot)))
+		dic[lot] = fullArr
+		result = []
+		result.append(dic)
+
+	return json.dumps(result)
+
+def getTotalSpots(parkingLotName):
+	db = MySQLdb.connect(host="localhost",
+                         user="develop",
+                         passwd="password",
+                         db="parking_data")
+
+	cur = db.cursor()
+	cur.execute("SELECT totalSpots FROM lots WHERE name = \"" + parkingLotName + "\"")
+	results = cur.fetchall()
+	for result in results:
+		for item in result:
+			return str(item)
+
+def getTimestamp(parkingLotName):
+	db = MySQLdb.connect(host="localhost",
+                         user="develop",
+                         passwd="password",
+                         db="parking_data")
+
+	cur = db.cursor()
+	cur.execute("SELECT timestamp FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1")
+	results = cur.fetchall()
+	for result in results:
+		for item in result:
+			return str(item)
+
+@app.route("/fracLeft")
+def getFracLeft():
+	lotsArr = queryArray("SELECT name FROM lots")
+	dic = collections.OrderedDict()
+
+	for lot in lotsArr:
+		fracArr = []
+		fracArr.append(str(getSpotsLeft(lot)))
+		fracArr.append(str(getTotalSpots(lot)))
+		dic[lot] = fracArr
+	result = []
+	result.append(dic)
+
+	return json.dumps(result)
+
+@app.route("/predictions/<parkingLotName>")
+def getPredictionsFor(parkingLotName):
+	return query("SELECT percentFilled FROM " + parkingLotName + "Prediction")
+
 	
 @app.route("/allLots")
 def getAllLotInfo():
-    return query("SELECT * FROM lots")
+	return query("SELECT * FROM lots")
 
 @app.route("/spotsleft/<parkingLotName>")
 def getAvailableSpotsFor(parkingLotName):
-    return query("SELECT freeSpots FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1")
+	return query("SELECT freeSpots FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1")
 
 @app.route("/percentleft/<parkingLotName>")
 def getPercentLeftFor(parkingLotName):
-    return query("SELECT((SELECT freeSpots FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1) / (SELECT totalSpots FROM lots WHERE name = \"" + parkingLotName + "\")) as percentLeft")
+	return query("SELECT((SELECT freeSpots FROM " + parkingLotName + "Data ORDER BY timestamp DESC LIMIT 1) / (SELECT totalSpots FROM lots WHERE name = \"" + parkingLotName + "\")) as percentLeft")
 
 @app.route("/prediction/<parkingLotName>")
 def getPredictionFor(parkingLotName):
-    # query DB for parkingLotName prediction
-    return parkingLotName + " .0 .03 .07 .20 .25 .4 .5 .9 1.0 1.0 1.0 .8 .9 1.0"
+	# query DB for parkingLotName prediction
+	return parkingLotName + " .0 .03 .07 .20 .25 .4 .5 .9 1.0 1.0 1.0 .8 .9 1.0"
 
 
 if __name__ == "__main__":
-    app.run()
+	# local
+	app.run()
+	# remote
+	# app.run(host='0.0.0.0',port='5000')
