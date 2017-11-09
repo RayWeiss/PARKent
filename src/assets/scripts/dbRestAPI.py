@@ -176,6 +176,117 @@ def getFracLeft():
 def getPredictionsFor(parkingLotName):
     return query("SELECT percentFilled FROM " + parkingLotName + "Prediction")
 
+# Brandon's Stuff
+####################################################################
+@app.route("/addlot/<lotName>/<totalSpots>/<lat>/<lon>/<lotNum>")
+def addLot(lotName, totalSpots, lat, lon, lotNum):
+	try:
+		db = MySQLdb.connect(host, user, passwd, db="parking_data")
+		url = "https://streetsoncloud.com/parking/rest/occupancy/id/" + lotNum
+		useQuery = "use parking_data;"
+		query = "insert into lots values (\"" + lotName + "\"," + totalSpots + "," + lat + "," + lon + ",\"" + url + "\");"
+		dataTable = "create table " + lotName + "Data (timeStamp TIMESTAMP NOT NULL, freeSpots INT(10) UNSIGNED NOT NULL, PRIMARY KEY (timeStamp));"
+		predictTable = "create table " + lotName + "Prediction ( intrvl MEDIUMINT NOT NULL AUTO_INCREMENT, percentFilled DOUBLE(11,8) NOT NULL, PRIMARY KEY (intrvl) );"
+		cur = db.cursor()
+		cur.execute(useQuery)
+		cur.execute(query)
+		cur.execute(dataTable)
+		cur.execute(predictTable)
+		successJson = "{\"0\":\"true\"}"
+		db.commit()
+		db.close()
+		return successJson
+
+	except MySQLdb.Error as e:
+		return returnError(e)
+
+@app.route("/createdb/<dbName>/<lat>/<lon>")
+def createDB(dbName, lat, lon):
+	try:
+		db = MySQLdb.connect(host, user, passwd)
+
+		dbQuery = "create database " + dbName + ";"
+		useQuery = "use " + dbName + ";"
+		centerQuery = "create table center (lat double(10,8), lon double(10,8));"
+		insertQuery = "insert into center values (" + lat + "," + lon + ");"
+		lotsTable = "CREATE TABLE lots(name VARCHAR(25) NOT NULL, totalSpots int(10) UNSIGNED NOT NULL, lat DOUBLE(10,8) NOT NULL, lon DOUBLE(11,8) NOT NULL, url VARCHAR(200) NOT NULL, PRIMARY KEY(name));"
+		cur = db.cursor()
+		cur.execute(dbQuery)
+		cur.execute(useQuery)
+		cur.execute(centerQuery)
+		cur.execute(insertQuery)
+		cur.execute(lotsTable)
+		successJson = "{\"0\":\"true\"}"
+		db.commit()
+		db.close()
+		return successJson
+
+	except MySQLdb.Error as e:
+		return returnError(e)
+
+@app.route("/dropdb/<dbName>")
+def removeDB(dbName):
+	try:
+		db = MySQLdb.connect(host,
+			user,
+			passwd)
+
+		cur = db.cursor()
+		dropQuery = "drop database " + dbName + ";"
+		cur.execute(dropQuery)
+		successJson = "{\"0\":\"true\"}"
+		return successJson
+
+	except MySQLdb.Error as e:
+		return returnError(e)
+
+@app.route("/removelot/<lotName>")
+def dropLot( lotName):
+	try:
+		db = MySQLdb.connect(host, user, passwd, db="parking_data")
+		cur = db.cursor()
+		useQuery = "use parking_data;"
+		dropDataQuery = "drop table " + lotName + "Data;"
+		dropPredictionQuery = "drop table " + lotName + "Prediction;"
+		removeFromLots = "delete from lots where name = \""+ lotName + "\";"
+
+		print(removeFromLots)
+		cur.execute(useQuery)
+		cur.execute(removeFromLots)
+		cur.execute(dropDataQuery)
+		cur.execute(dropPredictionQuery)
+		successJson = "{\"0\":\"true\"}"
+		db.commit()
+		db.close()
+		return successJson
+
+	except MySQLdb.Error as e:
+		return returnError(e)
+
+def returnError(e):
+	errorArray = []
+	errorDic = collections.OrderedDict()
+	errorDic["errors"] = str(e)
+	errorArray.append(errorDic)
+	print("mySQL Query Error: ", e)
+	return json.dumps(errorArray)
+
+@app.route("/databases")
+def returnDatabases():
+	try:
+		db = MySQLdb.connect(host,
+			user,
+			passwd)
+
+		cur = db.cursor()
+		databaseArr = queryArray("show databases like '%parking%';")
+		result = []
+		result.append(databaseArr)
+		return json.dumps(result)
+
+	except MySQLdb.Error as e:
+		return returnError(e)
+
 if __name__ == "__main__":
     # local
     app.run()
