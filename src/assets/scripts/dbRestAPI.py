@@ -178,6 +178,10 @@ def getPredictionsFor(parkingLotName):
 
 # Brandon's Stuff
 ####################################################################
+host="localhost"
+user="develop"
+passwd="password"
+
 @app.route("/addlot/<lotName>/<totalSpots>/<lat>/<lon>/<lotNum>")
 def addLot(lotName, totalSpots, lat, lon, lotNum):
 	try:
